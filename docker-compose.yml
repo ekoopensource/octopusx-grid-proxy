@@ -1,0 +1,48 @@
+version: "3.3"
+services:
+  frontend:
+    image: octopusx-grid-proxy-frontend
+    build: .
+    ports:
+      - "50000:80"
+    container_name: octopusx-grid-proxy-frontend
+    networks:
+      - ocx-grid-proxy
+  wordpress:
+    depends_on:
+      - mysql
+    image: wordpress:latest
+    ports:
+      - "51000:51000"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: ${WORDPRESS_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DATABASE}
+    volumes:
+      - wordpress_data:/var/www/html
+    container_name: octopusx-grid-proxy-wordpress
+    networks:
+      - ocx-grid-proxy
+
+  mysql:
+    image: mysql:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    container_name: octopusx-grid-proxy-mysql
+    networks:
+      - ocx-grid-proxy
+
+volumes:
+    db_data: {}
+    wordpress_data:
+
+networks:
+  ocx-grid-proxy:
